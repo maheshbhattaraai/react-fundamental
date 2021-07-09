@@ -1,25 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {Component} from 'react';
+import ListContacts from './ListContacts';
+import * as ContactAPI from './utils/ContactsAPI';
+import CreateContact from './CreateContact';
+import {Route} from 'react-router-dom';
+class App extends Component {
+  state = {
+    contacts: []
+  }
+  componentDidMount() {
+    ContactAPI.getAll().then((contacts) => {
+      this.setState({contacts})
+    })
+  }
+  removeContact = (contact) => {
+    this.setState((state) => ({
+      contacts: state.contacts.filter((c) => c.id !== contact.id)
+    }));
+    ContactAPI.remove(contact)
+  }
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  render() {
+    return (<>
+      <Route exact path="/" render={() => (
+        <ListContacts onDeleteContact={this.removeContact} contacts={this.state.contacts} />
+      )} />
+      <Route path="/create" component={CreateContact} />
+
+    </>)
+  }
 }
 
 export default App;
